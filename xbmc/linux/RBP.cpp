@@ -109,6 +109,9 @@ bool CRBP::Initialize()
 
   InitializeSettings();
 
+  // in case xbcm was restarted when suspended
+  ResumeVideoOutput();
+
   g_OMXImage.Initialize();
   m_omx_image_init = true;
   return true;
