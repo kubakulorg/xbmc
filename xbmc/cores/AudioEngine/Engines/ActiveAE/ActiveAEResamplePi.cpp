@@ -25,6 +25,7 @@
 
 #include "cores/AudioEngine/Utils/AEUtil.h"
 #include "ActiveAEResamplePi.h"
+#include "ServiceBroker.h"
 #include "settings/Settings.h"
 #include "utils/log.h"
 #include "linux/RBP.h"
@@ -163,6 +164,12 @@ bool CActiveAEResamplePi::Init(uint64_t dst_chan_layout, int dst_channels, int d
   if (!remapLayout && normalize)
   {
     av_opt_set_double(m_pContext, "rematrix_maxval", 1.0, 0);
+  }
+  int boost_center = CServiceBroker::GetSettings().GetInt("audiooutput.boostcenter");
+  if (boost_center)
+  {
+    float gain = pow(10.0f, ((float)(-3 + boost_center))/20.0f);
+    av_opt_set_double(m_pContext, "center_mix_level", gain, 0);
   }
 
   if (remapLayout)
