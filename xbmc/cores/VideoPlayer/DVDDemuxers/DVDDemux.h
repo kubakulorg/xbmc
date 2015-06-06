@@ -154,6 +154,7 @@ public:
     iOrientation = 0;
     iBitsPerPixel = 0;
     iBitRate = 0;
+    workaround_bugs = 0;
   }
 
   virtual ~CDemuxStreamVideo() {}
@@ -169,6 +170,7 @@ public:
   int iBitsPerPixel;
   int iBitRate;
   std::string stereo_mode; // expected stereo mode
+  int workaround_bugs; // info for decoder
 };
 
 class CDemuxStreamAudio : public CDemuxStream
