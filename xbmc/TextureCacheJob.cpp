@@ -21,6 +21,7 @@
 #include "TextureCacheJob.h"
 #include "TextureCache.h"
 #include "guilib/Texture.h"
+#include "ServiceBroker.h"
 #include "settings/AdvancedSettings.h"
 #include "settings/Settings.h"
 #include "utils/log.h"
@@ -91,7 +92,7 @@ bool CTextureCacheJob::CacheTexture(CBaseTexture **out_texture)
     return true;
 
 #if defined(HAS_OMXPLAYER)
-  if (COMXImage::CreateThumb(image, width, height, additional_info, CTextureCache::GetCachedPath(m_cachePath + ".jpg")))
+  if (CServiceBroker::GetSettings().GetBool("videoplayer.acceleratedjpegs") && COMXImage::CreateThumb(image, width, height, additional_info, CTextureCache::GetCachedPath(m_cachePath + ".jpg")))
   {
     m_details.width = width;
     m_details.height = height;
