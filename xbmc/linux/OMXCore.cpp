@@ -57,6 +57,7 @@ static void add_timespecs(struct timespec &time, long millisecs)
 
 
 COMXCoreTunnel::COMXCoreTunnel()
+: m_sharedSection(g_RBP.GetLock())
 {
   m_src_component       = NULL;
   m_dst_component       = NULL;
@@ -72,6 +73,7 @@ COMXCoreTunnel::~COMXCoreTunnel()
 
 void COMXCoreTunnel::Initialize(COMXCoreComponent *src_component, unsigned int src_port, COMXCoreComponent *dst_component, unsigned int dst_port)
 {
+  CSingleLock lock(m_sharedSection);
   m_src_component  = src_component;
   m_src_port    = src_port;
   m_dst_component  = dst_component;
@@ -80,6 +82,7 @@ void COMXCoreTunnel::Initialize(COMXCoreComponent *src_component, unsigned int s
 
 OMX_ERRORTYPE COMXCoreTunnel::Deestablish(bool noWait)
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_src_component || !m_dst_component || !IsInitialized())
     return OMX_ErrorUndefined;
 
@@ -154,6 +157,7 @@ OMX_ERRORTYPE COMXCoreTunnel::Deestablish(bool noWait)
 
 OMX_ERRORTYPE COMXCoreTunnel::Establish(bool enable_ports /* = true */, bool disable_ports /* = false */)
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
   OMX_PARAM_U32TYPE param;
   OMX_INIT_STRUCTURE(param);
@@ -291,6 +295,7 @@ OMX_ERRORTYPE COMXCoreTunnel::Establish(bool enable_ports /* = true */, bool dis
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 COMXCoreComponent::COMXCoreComponent()
+: m_sharedSection(g_RBP.GetLock())
 {
   m_input_port  = 0;
   m_output_port = 0;
@@ -327,6 +332,7 @@ COMXCoreComponent::COMXCoreComponent()
 
 COMXCoreComponent::~COMXCoreComponent()
 {
+  CSingleLock lock(m_sharedSection);
   Deinitialize();
 
   pthread_mutex_destroy(&m_omx_input_mutex);
@@ -352,6 +358,7 @@ void COMXCoreComponent::TransitionToStateLoaded()
 
 OMX_ERRORTYPE COMXCoreComponent::EmptyThisBuffer(OMX_BUFFERHEADERTYPE *omx_buffer)
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
 
   #if defined(OMX_DEBUG_EVENTHANDLER)
@@ -372,6 +379,7 @@ OMX_ERRORTYPE COMXCoreComponent::EmptyThisBuffer(OMX_BUFFERHEADERTYPE *omx_buffe
 
 OMX_ERRORTYPE COMXCoreComponent::FillThisBuffer(OMX_BUFFERHEADERTYPE *omx_buffer)
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
 
   #if defined(OMX_DEBUG_EVENTHANDLER)
@@ -392,6 +400,7 @@ OMX_ERRORTYPE COMXCoreComponent::FillThisBuffer(OMX_BUFFERHEADERTYPE *omx_buffer
 
 OMX_ERRORTYPE COMXCoreComponent::FreeOutputBuffer(OMX_BUFFERHEADERTYPE *omx_buffer)
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
 
   if(!m_handle || !omx_buffer)
@@ -415,6 +424,7 @@ void COMXCoreComponent::FlushAll()
 
 void COMXCoreComponent::FlushInput()
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle || m_resource_error)
     return;
 
@@ -430,6 +440,7 @@ void COMXCoreComponent::FlushInput()
 
 void COMXCoreComponent::FlushOutput()
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle || m_resource_error)
     return;
 
@@ -563,6 +574,7 @@ OMX_ERRORTYPE COMXCoreComponent::WaitForOutputDone(long timeout /*=200*/)
 
 OMX_ERRORTYPE COMXCoreComponent::AllocInputBuffers()
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
 
   if(!m_handle)
@@ -629,6 +641,7 @@ OMX_ERRORTYPE COMXCoreComponent::AllocInputBuffers()
 
 OMX_ERRORTYPE COMXCoreComponent::AllocOutputBuffers()
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
 
   if(!m_handle)
@@ -695,6 +708,7 @@ OMX_ERRORTYPE COMXCoreComponent::AllocOutputBuffers()
 
 OMX_ERRORTYPE COMXCoreComponent::FreeInputBuffers()
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
 
   if(!m_handle)
@@ -747,6 +761,7 @@ OMX_ERRORTYPE COMXCoreComponent::FreeInputBuffers()
 
 OMX_ERRORTYPE COMXCoreComponent::FreeOutputBuffers()
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
 
   if(!m_handle)
@@ -799,6 +814,7 @@ OMX_ERRORTYPE COMXCoreComponent::FreeOutputBuffers()
 
 OMX_ERRORTYPE COMXCoreComponent::DisableAllPorts()
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1027,6 +1043,7 @@ OMX_ERRORTYPE COMXCoreComponent::WaitForCommand(OMX_U32 command, OMX_U32 nData2,
 
 OMX_ERRORTYPE COMXCoreComponent::SetStateForComponent(OMX_STATETYPE state)
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1065,6 +1082,7 @@ OMX_ERRORTYPE COMXCoreComponent::SetStateForComponent(OMX_STATETYPE state)
 
 OMX_STATETYPE COMXCoreComponent::GetState() const
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return (OMX_STATETYPE)0;
 
@@ -1076,6 +1094,7 @@ OMX_STATETYPE COMXCoreComponent::GetState() const
 
 OMX_ERRORTYPE COMXCoreComponent::SetParameter(OMX_INDEXTYPE paramIndex, OMX_PTR paramStruct)
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1092,6 +1111,7 @@ OMX_ERRORTYPE COMXCoreComponent::SetParameter(OMX_INDEXTYPE paramIndex, OMX_PTR 
 
 OMX_ERRORTYPE COMXCoreComponent::GetParameter(OMX_INDEXTYPE paramIndex, OMX_PTR paramStruct) const
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1108,6 +1128,7 @@ OMX_ERRORTYPE COMXCoreComponent::GetParameter(OMX_INDEXTYPE paramIndex, OMX_PTR 
 
 OMX_ERRORTYPE COMXCoreComponent::SetConfig(OMX_INDEXTYPE configIndex, OMX_PTR configStruct)
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1124,6 +1145,7 @@ OMX_ERRORTYPE COMXCoreComponent::SetConfig(OMX_INDEXTYPE configIndex, OMX_PTR co
 
 OMX_ERRORTYPE COMXCoreComponent::GetConfig(OMX_INDEXTYPE configIndex, OMX_PTR configStruct) const
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1140,6 +1162,7 @@ OMX_ERRORTYPE COMXCoreComponent::GetConfig(OMX_INDEXTYPE configIndex, OMX_PTR co
 
 OMX_ERRORTYPE COMXCoreComponent::SendCommand(OMX_COMMANDTYPE cmd, OMX_U32 cmdParam, OMX_PTR cmdParamData)
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1156,6 +1179,7 @@ OMX_ERRORTYPE COMXCoreComponent::SendCommand(OMX_COMMANDTYPE cmd, OMX_U32 cmdPar
 
 OMX_ERRORTYPE COMXCoreComponent::EnablePort(unsigned int port,  bool wait)
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1190,6 +1214,7 @@ OMX_ERRORTYPE COMXCoreComponent::EnablePort(unsigned int port,  bool wait)
 
 OMX_ERRORTYPE COMXCoreComponent::DisablePort(unsigned int port, bool wait)
 {
+  CSingleLock lock(m_sharedSection);
   if(!m_handle)
     return OMX_ErrorUndefined;
 
@@ -1224,6 +1249,7 @@ OMX_ERRORTYPE COMXCoreComponent::DisablePort(unsigned int port, bool wait)
 
 OMX_ERRORTYPE COMXCoreComponent::UseEGLImage(OMX_BUFFERHEADERTYPE** ppBufferHdr, OMX_U32 nPortIndex, OMX_PTR pAppPrivate, void* eglImage)
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err = OMX_ErrorNone;
 
   if(!m_handle)
@@ -1301,6 +1327,7 @@ OMX_ERRORTYPE COMXCoreComponent::UseEGLImage(OMX_BUFFERHEADERTYPE** ppBufferHdr,
 
 bool COMXCoreComponent::Initialize( const std::string &component_name, OMX_INDEXTYPE index)
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err;
 
   m_input_port  = 0;
@@ -1385,6 +1412,7 @@ bool COMXCoreComponent::Initialize( const std::string &component_name, OMX_INDEX
 
 void COMXCoreComponent::ResetEos()
 {
+  CSingleLock lock(m_sharedSection);
   pthread_mutex_lock(&m_omx_eos_mutex);
   m_eos = false;
   pthread_mutex_unlock(&m_omx_eos_mutex);
@@ -1392,6 +1420,7 @@ void COMXCoreComponent::ResetEos()
 
 bool COMXCoreComponent::Deinitialize()
 {
+  CSingleLock lock(m_sharedSection);
   OMX_ERRORTYPE omx_err;
 
   m_exit = true;
