@@ -1121,9 +1121,6 @@ bool CDVDDemuxFFmpeg::SeekTime(double time, bool backwards, double *startpts)
   m_pkt.result = -1;
   av_packet_unref(&m_pkt.pkt);
 
-  if (m_pSSIF)
-    m_pSSIF->Flush();
-
   CDVDInputStream::IPosTime* ist = m_pInput->GetIPosTime();
   if (ist)
   {
@@ -1137,6 +1134,8 @@ bool CDVDDemuxFFmpeg::SeekTime(double time, bool backwards, double *startpts)
 
     return true;
   }
+  else if (m_pSSIF)
+	m_pSSIF->Flush();
 
   if (!m_pInput->Seek(0, SEEK_POSSIBLE) &&
       !m_pInput->IsStreamType(DVDSTREAM_TYPE_FFMPEG))
