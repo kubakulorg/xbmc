@@ -189,7 +189,8 @@ bool CRetroPlayerVideo::GetPicture(const uint8_t* data, unsigned int size, DVDVi
   }
   else if (m_pVideoCodec)
   {
-    int iDecoderState = m_pVideoCodec->Decode(const_cast<uint8_t*>(data), size, DVD_NOPTS_VALUE, DVD_NOPTS_VALUE);
+    // FIXME
+    int iDecoderState = m_pVideoCodec->AddData(const_cast<uint8_t*>(data), size, DVD_NOPTS_VALUE, DVD_NOPTS_VALUE);
     if (iDecoderState & VC_PICTURE)
     {
       m_pVideoCodec->ClearPicture(&picture);
