@@ -20424,3 +20424,18 @@ msgstr ""
 msgctxt "#39014"
 msgid "Would you also like to remove all related data (e.g. settings) of this add-on?"
 msgstr ""
+
+#: system/peripherals.xml
+msgctxt "#38050"
+msgid "Remote button press delay before repeating (ms)"
+msgstr ""
+
+#: system/peripherals.xml
+msgctxt "#38051"
+msgid "Remote button press repeat rate (ms)"
+msgstr ""
+
+#: system/peripherals.xml
+msgctxt "#38052"
+msgid "Remote button press release time (ms)"
+msgstr ""
