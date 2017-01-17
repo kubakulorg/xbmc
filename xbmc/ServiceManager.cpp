@@ -87,7 +87,7 @@ bool CServiceManager::Init2()
 
 bool CServiceManager::Init3()
 {
-  m_ADSPManager->Init();
+  //m_ADSPManager->Init();
   m_PVRManager->Init();
   m_contextMenuManager->Init();
   m_gameServices->Init();
